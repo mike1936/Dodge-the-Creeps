@@ -1,23 +1,11 @@
 extends Node
 
-# class member variables go here, for example:
-# var a = 2
-# var b = "textvar"
 export (PackedScene) var Mob
 var score
 
 func _ready():
-	# Called when the node is added to the scene for the first time.
-	# Initialization here
-	
 	# randi depend on this to function
 	randomize()
-	new_game()
-
-#func _process(delta):
-#	# Called every frame. Delta is time since last frame.
-#	# Update game logic here.
-#	pass
 
 func new_game():
 	score = 0
@@ -25,6 +13,9 @@ func new_game():
 	# Start timer (shot once) -> mob timer (loop every 0.5 sec)
 	#                         -> score timer (loop every 1 sec)
 	$StartTimer.start()
+	$HUD.update_score(score)
+	$HUD.show_some_message("Get Ready")
+	#$Music.play()
 
 func _on_StartTimer_timeout():
 	# Wait ($StartTimer.Wait_Time=) 2 until other timer start:
@@ -34,6 +25,7 @@ func _on_StartTimer_timeout():
 func _on_ScoreTimer_timeout():
 	# Every ($ScoreTime.Wait_time=) 1 s, add 1 score:
 	score += 1
+	$HUD.update_score(score)
 
 func _on_MobTimer_timeout():
 	# Every ($MobTimer.Wait_time=) 0.5 s, do following:
@@ -55,3 +47,10 @@ func _on_MobTimer_timeout():
 func game_over():
 	$ScoreTimer.stop()
 	$MobTimer.stop()
+	$HUD.show_game_over()
+	$Player.hide()
+	#$Music.stop()
+	$DeathSound.play()
+
+func _process(delta):
+	$DEBUG.text = str($MobTimer.is_stopped()) + ', ' + str($StartTimer.time_left)
