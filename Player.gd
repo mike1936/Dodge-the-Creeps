@@ -27,23 +27,32 @@ func _process(delta):
 	if velocity.length() > 0:
 		velocity = velocity.normalized() * speed
 		$AnimatedSprite.play()
+		$RainbowPhantom.texture = $AnimatedSprite.frames.get_frame($AnimatedSprite.animation, $AnimatedSprite.frame)
+		$RainbowPhantom.set_emitting(true)
+		if velocity.y >= 0:
+			$AnimatedSprite.animation = 'right'
+			if velocity.x < 0:
+				var t = ImageTexture.new()
+				var i = Image.new()
+				i = $RainbowPhantom.texture.get_data()
+				i.flip_x()
+				t.create_from_image(i)
+				$RainbowPhantom.texture = t
+				$AnimatedSprite.flip_h = true
+			else:
+				$RainbowPhantom.texture = $AnimatedSprite.frames.get_frame($AnimatedSprite.animation, $AnimatedSprite.frame)
+				$AnimatedSprite.flip_h = false
+		else:
+			$AnimatedSprite.animation = 'up'
 	else:
 		$AnimatedSprite.stop()
+		$RainbowPhantom.set_emitting(false)
 	
 	# Update position of the player
 	self.position += velocity * delta
 	# Restrict position area
 	self.position.x = clamp(position.x, 0, screensize.x)
 	self.position.y = clamp(position.y, 0, screensize.y)
-	
-	if velocity.x != 0:
-		$AnimatedSprite.animation = 'right'
-		if velocity.y ==0:
-			$AnimatedSprite.flip_v = false
-		$AnimatedSprite.flip_h = velocity.x < 0
-	elif velocity.y != 0:
-		$AnimatedSprite.animation = 'up'
-		$AnimatedSprite.flip_v = velocity.y > 0
 
 func _on_Player_body_entered(body):
 	hide()
